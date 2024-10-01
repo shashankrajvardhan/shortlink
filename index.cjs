@@ -1,6 +1,9 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const { initDatabase, createLogin, LoginID } = require('./database');
+const { initDatabase, createLogin, LoginID } = require('./database.cjs');
+const urlRoutes = require('./urlRoutes.cjs');
+const redirectRoutes = require('./redirectRoutes.cjs');
+const authenticateToken = require('./authMiddleware.cjs');
 const jwt = require("jsonwebtoken");
 
 const app = express();
@@ -83,6 +86,9 @@ function validateLogin(login) {
   }
   return filteredLogin;
 }
+app.use(authenticateToken);
+app.use('/url',urlRoutes);
+app.use('/',redirectRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {

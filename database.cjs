@@ -49,13 +49,65 @@ const LoginID = async(id)=>{
     throw error;
   }
 };
+// Create Urls Table
+
+const createUrlTable = async()=> {
+  const query = `
+  CREATE TABLE IF NOT EXISTS urls (
+   id SERIAL PRIMARY KEY,
+   name VARCHAR(255) NOT NULL,
+   long_url TEXT NOT NULL,
+   short_code VARCHAR(10) NOT NULL UNIQUE,
+   created_by INTEGER REFERENCES login(id),
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
+ `;
+
+ try {
+  await pool.query(query);
+  console.log('URLs table created successfully');
+ } catch(error){
+  console.error('Error creating URLs table:', error);
+ }
+};
+
+const createUrl = async (name, longUrl, shortCode, createdBy) => {
+  const query = `
+  INSERT INTO urls (name, long_url, short_code, created_by) VALUES ($1, $2, $3, $4) RETURNING *;
+  `;
+
+  const values = [name, longUrl, shortCode, createdBy];
+  try {
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error creating URL:', error);
+    throw error;
+  }
+};
+
+const getUrlByShortCode = async(shortCode)=> {
+  const query = `SELECT * FROM urls WHERE short_code $1`;
+  const values = [shortCode];
+
+  try {
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  } catch (error){
+    console.error('Error fetching URL by shortcode:', error);
+    throw error;
+  }
+};
 
 const initDatabase = async () => {
   await createLoginTable();
+  await createUrlTable();
 };
 
 module.exports = {
   initDatabase,
   createLogin,
   LoginID,
+  createUrl,
+  getUrlByShortCode
 };
