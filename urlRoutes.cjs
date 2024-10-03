@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('./database.cjs');
+const { createUrl } = require('./database.cjs');
 let nanoid;
 const initializeNanoid = async () => {
   if (!nanoid) {
@@ -11,9 +12,10 @@ const initializeNanoid = async () => {
 const router = express.Router();
 router.post('/create-url', async (req, res) => {
   await initializeNanoid(); 
-    if (!req.user) {
-    return res.status(401).json({ error: 'Unauthorized: No valid user found' });
-  }
+  //   if (!req.user) {
+  //   return res.status(401).json({ error: 'Unauthorized: No valid user found' });
+  // }
+  const userId = req.user ? req.user.userId : null;
   const { longUrl, name } = req.body;
 
   if (!longUrl || !name) {  
@@ -22,11 +24,12 @@ router.post('/create-url', async (req, res) => {
   const shortCode = nanoid(8);
 
   try {
-    const query = 'INSERT INTO urls (name, long_url, short_code, created_by) VALUES ($1, $2, $3, $4) RETURNING *;';
-    const values = [name, longUrl, shortCode, req.user.userId];
-    const result = await pool.query(query, values);
-    const newUrl = result.rows[0];
-
+    // const query = 'INSERT INTO urls (name, long_url, short_code, created_by) VALUES ($1, $2, $3, $4) RETURNING *;';
+    // const values = [name, longUrl, shortCode, req.user.userId];
+    // const result = await pool.query(query, values);
+    // const newUrl = result.rows[0];
+    const result = await createUrl(name, longUrl, shortCode, req.user ? req.user.userId : null);
+    const newUrl = result;
     res.status(201).json({
       success: true,
       data: {

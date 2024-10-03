@@ -30,7 +30,11 @@ initDatabase().then(() => {
           username: newLogin.username
         },
         JWT_SECRET,
+        {
+          expiresIn: '15m'
+        }
       );
+      console.log('Generated Token:', token);
       const cookie ={
         maxAge: 1000 * 60 * 15,
         httpOnly: true,

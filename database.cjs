@@ -58,7 +58,7 @@ const createUrlTable = async()=> {
    name VARCHAR(255) NOT NULL,
    long_url TEXT NOT NULL,
    short_code VARCHAR(10) NOT NULL UNIQUE,
-   created_by INTEGER REFERENCES login(id),
+   created_by INTEGER REFERENCES login(id)  ON DELETE SET NULL,
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
    );
  `;
@@ -77,6 +77,7 @@ const createUrl = async (name, longUrl, shortCode, createdBy) => {
   `;
 
   const values = [name, longUrl, shortCode, createdBy];
+  console.log('Values being inserted:', values);
   try {
     const result = await pool.query(query, values);
     return result.rows[0];
@@ -87,7 +88,7 @@ const createUrl = async (name, longUrl, shortCode, createdBy) => {
 };
 
 const getUrlByShortCode = async(shortCode)=> {
-  const query = `SELECT * FROM urls WHERE short_code $1`;
+  const query = `SELECT * FROM urls WHERE short_code = $1`;
   const values = [shortCode];
 
   try {
