@@ -59,7 +59,10 @@ const createUrlTable = async()=> {
    long_url TEXT NOT NULL,
    short_code VARCHAR(10) NOT NULL UNIQUE,
    created_by INTEGER REFERENCES login(id)  ON DELETE SET NULL,
-   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   og_title VARCHAR(255),
+   og_description TEXT,
+   og_image TEXT  
    );
  `;
 
@@ -71,12 +74,12 @@ const createUrlTable = async()=> {
  }
 };
 
-const createUrl = async (name, longUrl, shortCode, createdBy) => {
+const createUrl = async (name, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage) => {
   const query = `
-  INSERT INTO urls (name, long_url, short_code, created_by) VALUES ($1, $2, $3, $4) RETURNING *;
+  INSERT INTO urls (name, long_url, short_code, created_by, og_title, og_description, og_image) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
   `;
 
-  const values = [name, longUrl, shortCode, createdBy];
+  const values = [name, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage];
   console.log('Values being inserted:', values);
   try {
     const result = await pool.query(query, values);

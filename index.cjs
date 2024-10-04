@@ -7,6 +7,9 @@ const authenticateToken = require('./authMiddleware.cjs');
 const jwt = require("jsonwebtoken");
 
 const app = express();
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+
 app.use(express.json());
 app.use(cookieParser('cookie:'))
 const JWT_SECRET = "secretkeyappearshere";

@@ -16,10 +16,10 @@ router.post('/create-url', async (req, res) => {
   //   return res.status(401).json({ error: 'Unauthorized: No valid user found' });
   // }
   const userId = req.user ? req.user.userId : null;
-  const { longUrl, name } = req.body;
+  const { longUrl, name, ogTitle, ogDescription, ogImage } = req.body;
 
-  if (!longUrl || !name) {  
-    return res.status(400).json({ error: 'Long URL and name are required' });
+  if (!longUrl || !name || !ogTitle || !ogDescription) {  
+    return res.status(400).json({ error: 'Long URL, name, OG title, and OG description are required' });
   }
   const shortCode = nanoid(8);
 
@@ -28,7 +28,7 @@ router.post('/create-url', async (req, res) => {
     // const values = [name, longUrl, shortCode, req.user.userId];
     // const result = await pool.query(query, values);
     // const newUrl = result.rows[0];
-    const result = await createUrl(name, longUrl, shortCode, req.user ? req.user.userId : null);
+    const result = await createUrl(name, longUrl, shortCode, req.user ? req.user.userId : null, ogTitle, ogDescription, ogImage);
     const newUrl = result;
     res.status(201).json({
       success: true,
@@ -36,7 +36,10 @@ router.post('/create-url', async (req, res) => {
         name: newUrl.name,
         longUrl: newUrl.long_url,
         shortCode: newUrl.short_code,
-        shortUrl: `http://localhost:5000/${newUrl.short_code}`
+        shortUrl: `http://localhost:5000/${newUrl.short_code}`,
+        ogTitle: newUrl.og_title,
+        ogDescription: newUrl.og_description,
+        ogImage: newUrl.og_image
       }
     });
   } catch (error) {
