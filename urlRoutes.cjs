@@ -1,5 +1,4 @@
 const express = require('express');
-//const pool = require('./database.cjs');
 const { createUrl } = require('./database.cjs');
 let nanoid;
 const initializeNanoid = async () => {
@@ -22,13 +21,13 @@ router.post('/create-url', async (req, res) => {
   if (!longUrl || !name || !ogTitle || !ogDescription) {  
     return res.status(400).json({ error: 'Long URL, name, OG title, and OG description are required' });
   }
-  const shortCode = nanoid(8);
 
   try {
     // const query = 'INSERT INTO urls (name, long_url, short_code, created_by) VALUES ($1, $2, $3, $4) RETURNING *;';
     // const values = [name, longUrl, shortCode, req.user.userId];
     // const result = await pool.query(query, values);
     // const newUrl = result.rows[0];
+    const shortCode = nanoid(8);
     const result = await createUrl(name, longUrl, shortCode, req.user ? req.user.userId : null, ogTitle, ogDescription, ogImage, userAgent);
     const newUrl = result;
     res.status(201).json({

@@ -75,6 +75,48 @@ const createUrlTable = async()=> {
  }
 };
 
+// Click count Table
+const createClicksTable = async() => {
+  const query = `
+  CREATE TABLE IF NOT EXISTS url_clicks (
+  id SERIAL PRIMARY KEY,
+  short_code VARCHAR(8) REFERENCES urls(short_code) ON DELETE CASCADE,
+  user_agent TEXT,
+  click_date DATE,
+  year INT,
+  month INT,
+  day INT,
+  click_count INT DEFAULT 1,
+  UNIQUE(short_code, user_agent, year, month, day)
+);`;
+
+  try {
+    await pool.query(query);
+    console.log('Clicks table created successfully');
+  } catch (error) {
+    console.error('Error creating Clicks table:', error);
+  }
+};
+
+const logLinkClick = async (shortCode, userAgent, currentDate) => {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth() + 1;
+  const day = currentDate.getDate();
+
+  const query = `
+  INSERT INTO url_clicks (short_code, user_agent, click_date, year, month, day, click_count)
+  VALUES ($1, $2, $3, $4, $5, $6, 1)
+  ON CONFLICT (short_code, user_agent, year, month, day)
+  DO UPDATE SET click_count = url_clicks.click_count + 1;`;
+  const values = [shortCode, userAgent, currentDate, year, month, day];
+  try {
+    await pool.query(query, values);
+  } catch (error) {
+    console.error('Error logging link click:', error);
+    throw error;
+  }
+};
+
 const createUrl = async (name, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage, userAgent) => {
   const query = `
   INSERT INTO urls (name, long_url, short_code, created_by, og_title, og_description, og_image, user_agent) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
@@ -107,6 +149,7 @@ const getUrlByShortCode = async(shortCode)=> {
 const initDatabase = async () => {
   await createLoginTable();
   await createUrlTable();
+  await createClicksTable();
 };
 
 module.exports = {
@@ -114,5 +157,6 @@ module.exports = {
   createLogin,
   LoginID,
   createUrl,
+  logLinkClick,
   getUrlByShortCode
 };

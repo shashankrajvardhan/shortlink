@@ -1,6 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const { initDatabase, createLogin, LoginID } = require('./database.cjs');
+const { initDatabase, createLogin, LoginID, logLinkClick} = require('./database.cjs');
 const urlRoutes = require('./urlRoutes.cjs');
 const redirectRoutes = require('./redirectRoutes.cjs');
 const authenticateToken = require('./authMiddleware.cjs');
