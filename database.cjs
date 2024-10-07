@@ -62,7 +62,8 @@ const createUrlTable = async()=> {
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    og_title VARCHAR(255),
    og_description TEXT,
-   og_image TEXT  
+   og_image TEXT,
+   user_agent TEXT
    );
  `;
 
@@ -74,12 +75,12 @@ const createUrlTable = async()=> {
  }
 };
 
-const createUrl = async (name, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage) => {
+const createUrl = async (name, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage, userAgent) => {
   const query = `
-  INSERT INTO urls (name, long_url, short_code, created_by, og_title, og_description, og_image) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+  INSERT INTO urls (name, long_url, short_code, created_by, og_title, og_description, og_image, user_agent) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
   `;
 
-  const values = [name, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage];
+  const values = [name, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage, userAgent];
   console.log('Values being inserted:', values);
   try {
     const result = await pool.query(query, values);
