@@ -11,10 +11,6 @@ const initializeNanoid = async () => {
 const router = express.Router();
 router.post('/create-url', async (req, res) => {
   await initializeNanoid(); 
-  //   if (!req.user) {
-  //   return res.status(401).json({ error: 'Unauthorized: No valid user found' });
-  // }
-//  const userId = req.user ? req.user.userId : null;
   const { longUrl, name, mobileUrl, desktopUrl, ogTitle, ogDescription, ogImage } = req.body;
   const userAgent = req.headers['user-agent'];
   const mobileUrlToSave = mobileUrl || longUrl;
@@ -23,14 +19,7 @@ router.post('/create-url', async (req, res) => {
   if (!longUrl || !name || !ogTitle || !ogDescription) {  
     return res.status(400).json({ error: 'Long URL, name, OG title, and OG description are required' });
   }
-  if (!name) {
-    return res.status(400).json({ error: 'name is required' });
-  }
   try {
-    // const query = 'INSERT INTO urls (name, long_url, short_code, created_by) VALUES ($1, $2, $3, $4) RETURNING *;';
-    // const values = [name, longUrl, shortCode, req.user.userId];
-    // const result = await pool.query(query, values);
-    // const newUrl = result.rows[0];
     const shortCode = nanoid(6);
     
     const result = await createUrl(name, mobileUrlToSave, desktopUrlToSave, longUrl, shortCode, null, ogTitle, ogDescription, ogImage, userAgent);

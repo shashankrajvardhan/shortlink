@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const redis = require('redis');
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
@@ -6,6 +7,19 @@ const pool = new Pool({
   password: '12345',
   port: '5432',
 });
+
+// initialize redis
+const redisClient = redis.createClient();
+
+redisClient.on('error', (err) => {
+  console.error('Redis error:', err);
+});
+
+// connect redis
+(async () => {
+  await redisClient.connect();
+  console.log('Connerctd to Redis');
+})();
 
 const createLoginTable = async() => {
   const query = `
@@ -130,6 +144,7 @@ const createUrl = async (name, mobileUrl, desktopUrl, longUrl, shortCode, create
   console.log('Values being inserted:', values);
   try {
     const result = await pool.query(query, values);
+    await redisClient.del(`shortlink:${shortCode}`);
     return result.rows[0];
   } catch (error) {
     console.error('Error creating URL:', error);
@@ -138,12 +153,27 @@ const createUrl = async (name, mobileUrl, desktopUrl, longUrl, shortCode, create
 };
 
 const getUrlByShortCode = async(shortCode)=> {
+  const redisKey = `shortlink:${shortCode}`;
+  // Check Redis
+  const cachedUrl = await redisClient.get(redisKey);
+  if (cachedUrl) {
+    console.log('Returning URL from Redis cache');
+    return JSON.parse(cachedUrl);
+  }
+  
+  // If not in Redis then...
   const query = `SELECT * FROM urls WHERE short_code = $1`;
   const values = [shortCode];
 
   try {
     const result = await pool.query(query, values);
-    return result.rows[0];
+    const urlData = result.rows[0];
+
+    //Store values in Redis
+    if (urlData) {
+      await redisClient.set(redisKey, JSON.stringify(urlData));
+    }
+    return urlData;
   } catch (error){
     console.error('Error fetching URL by shortcode:', error);
     throw error;

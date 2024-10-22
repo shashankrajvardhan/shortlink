@@ -19,7 +19,8 @@
     "jsonwebtoken": "^9.0.2",
     "nanoid": "^5.0.7",
     "parser": "^0.1.4",
-    "pg": "^8.13.0"
+    "pg": "^8.13.0",
+    "redis": "^4.7.0"
   },
   "description": "",
   "devDependencies": {
