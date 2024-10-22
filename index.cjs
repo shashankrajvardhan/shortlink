@@ -1,6 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const { initDatabase, createLogin, LoginID, logLinkClick} = require('./database.cjs');
+const { initDatabase, createLogin, LoginID} = require('./database.cjs');
 const urlRoutes = require('./urlRoutes.cjs');
 const redirectRoutes = require('./redirectRoutes.cjs');
 const authenticateToken = require('./authMiddleware.cjs');
@@ -37,12 +37,11 @@ initDatabase().then(() => {
           expiresIn: '15m'
         }
       );
-      console.log('Generated Token:', token);
       const cookie ={
         maxAge: 1000 * 60 * 15,
         httpOnly: true,
         signed: true
-      }
+      };
       res.cookie('username', newLogin.username, cookie);
       res.setHeader('Username', newLogin.username);  
       res.status(201).json({
@@ -50,8 +49,8 @@ initDatabase().then(() => {
         data: {
           id: newLogin.id,
           username: newLogin.username,
-          token: token
-        }
+          token: token,
+        },
       });
     } catch (error) {
       console.error('Error during signup:', error);

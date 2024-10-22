@@ -13,7 +13,7 @@ const createLoginTable = async() => {
   id SERIAL PRIMARY KEY,
   username VARCHAR(255) NOT NULL,
   password VARCHAR(255) NOT NULL
-  )
+  );
 `;
 
 try {
@@ -57,6 +57,8 @@ const createUrlTable = async()=> {
    id SERIAL PRIMARY KEY,
    name VARCHAR(255) NOT NULL,
    long_url TEXT NOT NULL,
+   mobile_url TEXT,
+   desktop_url TEXT,
    short_code VARCHAR(10) NOT NULL UNIQUE,
    created_by INTEGER REFERENCES login(id)  ON DELETE SET NULL,
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -88,7 +90,8 @@ const createClicksTable = async() => {
   day INT,
   click_count INT DEFAULT 1,
   UNIQUE(short_code, user_agent, year, month, day)
-);`;
+);
+`;
 
   try {
     await pool.query(query);
@@ -107,7 +110,8 @@ const logLinkClick = async (shortCode, userAgent, currentDate) => {
   INSERT INTO url_clicks (short_code, user_agent, click_date, year, month, day, click_count)
   VALUES ($1, $2, $3, $4, $5, $6, 1)
   ON CONFLICT (short_code, user_agent, year, month, day)
-  DO UPDATE SET click_count = url_clicks.click_count + 1;`;
+  DO UPDATE SET click_count = url_clicks.click_count + 1;
+  `;
   const values = [shortCode, userAgent, currentDate, year, month, day];
   try {
     await pool.query(query, values);
@@ -117,12 +121,12 @@ const logLinkClick = async (shortCode, userAgent, currentDate) => {
   }
 };
 
-const createUrl = async (name, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage, userAgent) => {
+const createUrl = async (name, mobileUrl, desktopUrl, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage, userAgent) => {
   const query = `
-  INSERT INTO urls (name, long_url, short_code, created_by, og_title, og_description, og_image, user_agent) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
+  INSERT INTO urls (name, mobile_url, desktop_url, long_url, short_code, created_by, og_title, og_description, og_image, user_agent) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *;
   `;
 
-  const values = [name, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage, userAgent];
+  const values = [name, mobileUrl, desktopUrl, longUrl, shortCode, createdBy, ogTitle, ogDescription, ogImage, userAgent];
   console.log('Values being inserted:', values);
   try {
     const result = await pool.query(query, values);

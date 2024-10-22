@@ -10,17 +10,18 @@ router.get('/:shortCode', async (req, res) => {
     if (!urlRecord){
       return res.status(404).json({message: 'Short URL not found'});
     }
+
+    const userAgent = req.header['user-agent'] || 'Unknown';
+    const isMobile = /mobile/i.test(userAgent);
+    const  longUrl= isMobile ? urlRecord.mobile_url : urlRecord.desktop_url;
     
-    const  longUrl= urlRecord.long_url;
+    const currentDate = new Date();
+    await logLinkClick(shortCode, userAgent, currentDate);
+
     const  ogTitle= urlRecord.og_title;
     const  ogDescription= urlRecord.og_description || 'This is a sample description.';
     const  ogImage= urlRecord.og_image || 'https://hips.hearstapps.com/digitalspyuk.cdnds.net/12/48/cult_merlin_s05_e09_1.jpg';
-
-    const userAgent = req.header['user-agent'] || 'Unknown';
-    const currentDate = new Date();
-
-    await logLinkClick(shortCode, userAgent, currentDate);
-    
+  
     const urlData = {
       longUrl,
       ogTitle,
