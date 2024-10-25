@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Short Link</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Create Short Link</h1>
+        <form id="shortlink-form">
+            <label for="longUrl">Long URL:</label>
+            <input type="url" id="longUrl" name="longUrl" required>
+
+            <label for="name">Link Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="mobileUrl">Mobile URL:</label>
+            <input type="url" id="mobileUrl" name="mobileUrl">
+
+            <label for="desktopUrl">Desktop URL:</label>
+            <input type="url" id="desktopUrl" name="desktopUrl">
+
+            <label for="ogTitle">OG Title:</label>
+            <input type="text" id="ogTitle" name="ogTitle" required>
+
+            <label for="ogDescription">OG Description:</label>
+            <textarea id="ogDescription" name="ogDescription" required></textarea>
+
+            <label for="ogImage">OG Image URL:</label>
+            <input type="url" id="ogImage" name="ogImage">
+
+            <button type="submit">Create Short Link</button>
+        </form>
+
+        <div id="result" style="display:none;">
+            <h2>Short Link Created:</h2>
+            <p id="shortUrl"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('shortlink-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/url/create-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('shortUrl').innerText = result.data.shortUrl;
+                } else {
+                    alert(result.error || 'Error creating short URL');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create short URL');
+            }
+        });
+    </script>
+
+    <style>
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</body>
+</html>

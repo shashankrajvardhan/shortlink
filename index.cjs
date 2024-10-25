@@ -11,6 +11,7 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 app.use(express.json());
+app.use(express.static(__dirname + '/public'));
 app.use(cookieParser('cookie:'))
 const JWT_SECRET = "secretkeyappearshere";
 
@@ -75,6 +76,10 @@ app.get('/signup', (req, res) => {
       console.error('Error fetching user:', error);
       res.status(500).json({ error: 'Failed to get user' });
     });
+});
+
+app.get('/', (req, res) => {
+  res.render('index');
 });
 
 app.post('/logout', (req, res) => {
